@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Excel to JSON Converter</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#f4f4f4;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:600px;
+    background:#ffffff;
+    border-radius:20px;
+    padding:40px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.title{
+    text-align:center;
+    font-size:28px;
+    font-weight:700;
+    color:#111;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#666;
+    font-size:14px;
+    margin-bottom:35px;
+}
+
+.upload-box{
+    border:2px dashed #000;
+    border-radius:16px;
+    padding:35px 20px;
+    text-align:center;
+    background:#fafafa;
+    transition:0.3s;
+}
+
+.upload-box:hover{
+    background:#f0f0f0;
+}
+
+input[type="file"]{
+    margin-top:15px;
+    width:100%;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:#fff;
+}
+
+button{
+    width:100%;
+    margin-top:25px;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:#000;
+    color:#fff;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    opacity:0.9;
+}
+
+.result{
+    margin-top:25px;
+    background:#f8f8f8;
+    border-radius:14px;
+    padding:18px;
+    font-size:14px;
+    color:#222;
+    word-break:break-word;
+}
+
+.success{
+    color:green;
+    font-weight:600;
+}
+
+.error{
+    color:red;
+    font-weight:600;
+}
+
+@media(max-width:600px){
+
+    .container{
+        padding:25px;
+    }
+
+    .title{
+        font-size:22px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">
+        Excel to JSON Converter
+    </div>
+
+    <div class="subtitle">
+        Upload Input.xlsx file and download output.json
+    </div>
+
+    <div class="upload-box">
+
+        <p>Select Excel File</p>
+
+        <input type="file" id="excelFile" accept=".xlsx,.xls">
+
+    </div>
+
+    <button onclick="processExcel()">
+        Generate JSON File
+    </button>
+
+    <div class="result" id="resultBox">
+        Waiting for file upload...
+    </div>
+
+</div>
+
+<script>
+
+function processExcel() {
+
+    const fileInput = document.getElementById("excelFile");
+    const resultBox = document.getElementById("resultBox");
+
+    if (!fileInput.files.length) {
+        resultBox.innerHTML = '<span class="error">Please upload an Excel file.</span>';
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        const data = new Uint8Array(e.target.result);
+
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const sheetName = "REGISTERED";
+
+        if (!workbook.Sheets[sheetName]) {
+            resultBox.innerHTML = '<span class="error">REGISTERED sheet not found.</span>';
+            return;
+        }
+
+        const worksheet = workbook.Sheets[sheetName];
+
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+            defval: ""
+        });
+
+        let result = {};
+
+        jsonData.forEach(row => {
+
+            const presentationStatus = row["Presentation status"];
+
+            if (
+                presentationStatus === true ||
+                presentationStatus === "TRUE" ||
+                presentationStatus === "True" ||
+                presentationStatus === 1
+            ) {
+
+                const certId = String(row["Unique ID"]).trim();
+                const paperId = String(row["Acc ID"]).trim();
+
+                result[certId] = `${paperId}_${certId}.zip`;
+            }
+
+        });
+
+        const jsonString = JSON.stringify(result, null, 2);
+
+        const blob = new Blob([jsonString], {
+            type: "application/json"
+        });
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = "data.json";
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+
+        resultBox.innerHTML = `
+            <span class="success">
+                ✅ JSON file created successfully
+            </span>
+            <br><br>
+            Filtered rows: ${Object.keys(result).length}
+        `;
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+</script>
+
+</body>
+</html>
