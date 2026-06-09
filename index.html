@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,7 +180,7 @@ function processExcel() {
 
         const workbook = XLSX.read(data, { type: 'array' });
 
-        const sheetName = "REGISTERED";
+        const sheetName = "TOC";
 
         if (!workbook.Sheets[sheetName]) {
             resultBox.innerHTML = '<span class="error">REGISTERED sheet not found.</span>';
@@ -205,8 +206,8 @@ function processExcel() {
                 presentationStatus === 1
             ) {
 
-                const certId = String(row["Unique ID"]).trim();
-                const paperId = String(row["Acc ID"]).trim();
+                const certId = String(row["UNIQUE CODE"]).trim();
+                const paperId = String(row["Paper ID"]).trim();
 
                 result[certId] = `${paperId}_${certId}.zip`;
             }
