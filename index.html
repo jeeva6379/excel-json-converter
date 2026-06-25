@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,7 +199,7 @@ function processExcel() {
 
         jsonData.forEach(row => {
 
-            const presentationStatus = row["Presentation status"];
+            const presentationStatus = row["Presentation Status"];
 
             if (
                 presentationStatus === true ||
@@ -208,7 +209,7 @@ function processExcel() {
             ) {
 
                 const certId = String(row["Certificate ID"]).trim();
-                const paperId = String(row["Paper ID"]).trim();
+                const paperId = String(row["PAPER ID"]).trim();
 
                 result[certId] = `${paperId}_${certId}.zip`;
             }
