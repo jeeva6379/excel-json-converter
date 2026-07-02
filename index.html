@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -208,8 +209,8 @@ function processExcel() {
                 presentationStatus === 1
             ) {
 
-                const certId = String(row["Certificate ID"]).trim();
-                const paperId = String(row["PAPER ID"]).trim();
+                const certId = String(row["Certificate Unique ID"]).trim();
+                const paperId = String(row["Paper ID"]).trim();
 
                 result[certId] = `${paperId}_${certId}.zip`;
             }
